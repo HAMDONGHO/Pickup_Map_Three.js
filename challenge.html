@@ -19,14 +19,19 @@
         var camera, scene, renderer, clock, stats, light;
         var location;
         var maejang_location = [[1, 0, 5],[4, 0, 10], [2, 5, 3], [9, 5, 15], [7, 10, 9], [-10, 15, -9], [-5, 20, 10]]
+        var destination = [-5, 20, 10]
+        var base_position = [0, 0, 20]
+        var floor = 5
+        var root = []
 
-        main(4);
+        main(floor, destination, base_position);
         animate();
 
-        function main(floor) {
+        function main(floor, destination, base_position) {
 
             initScene(floor);
             initMisc();
+            initline(destination, base_position);
 
             document.body.appendChild( renderer.domElement);
             window.addEventListener( 'resize', onWindowResize, false);
@@ -79,7 +84,7 @@
                 specular: 0x111111,
                 transparent: true
             });*/
-            for(var i = 0; i <= x; i++){
+            for(var i = 0; i < x; i++){
                 //var ground = new THREE.Mesh( geometry, material);
                 // 바닥이 격자가 더 나아서 수정
                 var ground = new THREE.GridHelper(45, 10, material)
@@ -98,8 +103,57 @@
             }
         }
 
-        function line(){
-            console.log("구현중")
+        //목적지를 향한 선 그리는 부분
+        function initline(destination, base_position, root){
+            console.log(destination)
+            
+            var material = new THREE.LineBasicMaterial({
+                color: 0xff4040,
+                // 선두께 ㅅㅂ;; 왜 안됨,,
+                linewidth: 100,
+            });
+            
+            var points=[];
+
+            if (destination[1] == 5){
+                //for 문 돌려서 root 별로 이동하게 하면 될듯
+                points.push(new THREE.Vector3(10, 0, 3));
+                points.push(new THREE.Vector3(0, 0, 0));
+                points.push(new THREE.Vector3(0, 5, 0));
+                points.push(new THREE.Vector3(destination[0], destination[1], destination[2]));
+            }
+
+            if (destination[1] == 10){
+                points.push(new THREE.Vector3(base_position[0], base_position[1], base_position[2]));
+                points.push(new THREE.Vector3(10, 0, 3));
+                points.push(new THREE.Vector3(0, 0, 0));
+                points.push(new THREE.Vector3(0, 5, 0));
+                points.push(new THREE.Vector3(0, 10, 0));
+                points.push(new THREE.Vector3(destination[0], destination[1], destination[2]));
+            }
+            if (destination[1] == 15){
+                points.push(new THREE.Vector3(base_position[0], base_position[1], base_position[2]));
+                points.push(new THREE.Vector3(10, 0, 3));
+                points.push(new THREE.Vector3(0, 0, 0));
+                points.push(new THREE.Vector3(0, 5, 0));
+                points.push(new THREE.Vector3(0, 10, 0));
+                points.push(new THREE.Vector3(0, 15, 0));
+                points.push(new THREE.Vector3(destination[0], destination[1], destination[2]));
+            }
+            if (destination[1] == 20){
+                points.push(new THREE.Vector3(base_position[0], base_position[1], base_position[2]));
+                points.push(new THREE.Vector3(10, 0, 3));
+                points.push(new THREE.Vector3(0, 0, 0));
+                points.push(new THREE.Vector3(0, 5, 0));
+                points.push(new THREE.Vector3(0, 10, 0));
+                points.push(new THREE.Vector3(0, 15, 0));
+                points.push(new THREE.Vector3(0, 20, 0));
+                points.push(new THREE.Vector3(destination[0], destination[1], destination[2]));
+            }
+
+            var geometry = new THREE.BufferGeometry().setFromPoints(points);
+            var line = new THREE.Line(geometry, material);
+            scene.add(line);
         }
 
         function initMisc(){
