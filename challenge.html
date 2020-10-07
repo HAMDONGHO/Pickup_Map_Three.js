@@ -12,11 +12,13 @@
     <script type="module">
         import * as Three from "/three.js-master/build/three.js"
         import Stats from "/three.js-master/examples/jsm/libs/stats.module.js"
+        import { KMZLoader} from "/three.js-master/examples/jsm/loaders/KMZLoader.js"
         import {OrbitControls} from 'https://threejsfundamentals.org/threejs/resources/threejs/r119/examples/jsm/controls/OrbitControls.js';
         import {GUI} from 'https://threejsfundamentals.org/threejs/../3rdparty/dat.gui.module.js';
         
         var camera, scene, renderer, clock, stats, light;
         var location;
+        var maejang_location = [[1, 0, 5],[4, 0, 10], [2, 5, 3], [9, 5, 15], [7, 10, 9], [-10, 15, -9], [-5, 20, 10]]
 
         main(4);
         animate();
@@ -69,24 +71,35 @@
             location.position.set(0, 2, 20)
             scene.add( location );
 
-            // 백화점 각 층을 위한 박스(width, height, depth)
+            /* 백화점 층 바닥(width, height, depth)
             var geometry = new THREE.BoxBufferGeometry( 15, 0.15, 15);
             var material = new THREE.MeshPhongMaterial({
                 color : 0x00ff00,
                 shininess: 150,
-                specular: 0x111111
-            });
-
+                specular: 0x111111,
+                transparent: true
+            });*/
             for(var i = 0; i <= x; i++){
-                var ground = new THREE.Mesh( geometry, material);
-                //var ground = new THREE.GridHelper(50, 10, material)
-                ground.scale.multiplyScalar( 3 );
+                //var ground = new THREE.Mesh( geometry, material);
+                // 바닥이 격자가 더 나아서 수정
+                var ground = new THREE.GridHelper(45, 10, material)
+                //ground.scale.multiplyScalar( 1 );
                 ground.position.y = i*5;
-                //ground.position.y = i*15;
                 scene.add( ground );
             }
 
+            // 매장 배열로 받아서 위치 별로 사각형으로 세팅
+            var geometry = new THREE.BoxBufferGeometry(3, 3, 3);
+            var maejang_fig = new THREE.MeshLambertMaterial( { color: 0xfeb74c, map: new THREE.TextureLoader().load( '/three.js-master/examples/textures/square-outline-textured.png' ) } );
+            for(var j = 0; j < maejang_location.length; j++){
+                var maejang = new THREE.Mesh(geometry, maejang_fig);
+                maejang.position.set(maejang_location[j][0], maejang_location[j][1], maejang_location[j][2]);
+                scene.add(maejang)
+            }
+        }
 
+        function line(){
+            console.log("구현중")
         }
 
         function initMisc(){
