@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Challenge!!</title>
+    <meta name='viewport' content='width=device-width, user-scalable=no'/>
+
+    <body>
+        <div> I Do!!</div>
+    </body>
+    <script type="module">
+        import * as Three from "/three.js-master/build/three.js"
+        import Stats from "/three.js-master/examples/jsm/libs/stats.module.js"
+        import {OrbitControls} from 'https://threejsfundamentals.org/threejs/resources/threejs/r119/examples/jsm/controls/OrbitControls.js';
+        import {GUI} from 'https://threejsfundamentals.org/threejs/../3rdparty/dat.gui.module.js';
+        
+        var camera, scene, renderer, clock, stats, light;
+        var location;
+
+        main(4);
+        animate();
+
+        function main(floor) {
+
+            initScene(floor);
+            initMisc();
+
+            document.body.appendChild( renderer.domElement);
+            window.addEventListener( 'resize', onWindowResize, false);
+        }
+
+        function initScene(x){
+            // 카메라 세팅(fov, aspect, near, far)
+            // fov는 시야각(값이 커질수록 멀어짐)
+            // asperct는 canvas 가로 세로 비율임(이건 그냥 국룰 따라가는게 나을듯)
+            // near와 far은 렌더링되는 공간범위! 이건 좁게 설정하면 피사체가 잘려나감 무조건 크게
+            camera = new THREE.PerspectiveCamera( 120, window.innerWidth / window.innerHeight, 1, 2000);
+            // 첫 카메라 포지션 잡음(x, y, z) 참고로 좌, 우가 x축이고 z는 앞, 뒤이고 y가 위, 아래임
+            camera.position.set( 0, 8, 35);
+
+            // Scene 선언
+            scene = new THREE.Scene();
+
+            // 말 그대로 배곃색
+            scene.background = new THREE.Color(0xFFFFFF);
+
+            // 조명색이라고 생각하면됨. 모든 오브젝트를 비춰줌, 그림자 X
+            scene.add(new THREE.AmbientLight(0xeeeeee));
+
+            // 전체 후광 효과 주기 위해 DirectionalLight(한 방향으로 비추는 Light) 이용
+            light = new THREE.DirectionalLight( 0xFFFFFF, 1);
+            light.position.set(0, 20, 0);
+            scene.add(light);
+
+            // 기본 오브젝트, radis, tube, tubularSegments, radialSegments, p, q 순
+            var geometry = new THREE.TorusKnotBufferGeometry( 25, 8, 75, 20);
+            // MeshPhongMaterial은 반사 하이라이트있는 반짝이는 표면 재질(고급스러움을 더 하기 위함)
+            var material = new THREE.MeshPhongMaterial({
+                color: 0x0000a0,
+                shininess: 150,
+                specular : 0x222222
+            });
+            // Mesh 메소드를 이용해서 선언한 geometry랑 material 결합 한 오브젝트 생성
+            location = new THREE.Mesh( geometry, material);
+            // 스케일 지정
+            location.scale.multiplyScalar( 1/30 );
+            // 초기 위치 치정 <- QR코드랑 어떻게 비벼봐야하고,,,,
+            location.position.set(0, 2, 20)
+            scene.add( location );
+
+            // 백화점 각 층을 위한 박스(width, height, depth)
+            var geometry = new THREE.BoxBufferGeometry( 15, 0.15, 15);
+            var material = new THREE.MeshPhongMaterial({
+                color : 0x00ff00,
+                shininess: 150,
+                specular: 0x111111
+            });
+
+            for(var i = 0; i <= x; i++){
+                var ground = new THREE.Mesh( geometry, material);
+                //var ground = new THREE.GridHelper(50, 10, material)
+                ground.scale.multiplyScalar( 3 );
+                ground.position.y = i*5;
+                //ground.position.y = i*15;
+                scene.add( ground );
+            }
+
+
+        }
+
+        function initMisc(){
+            //wdbgl은 렌더러임. antialias는 가장자리를 매끄럽게 하는 기능
+            renderer = new THREE.WebGLRenderer({antialias: true});
+            //캔버스가 흐려지는거 방지
+            renderer.setPixelRatio(window.devicePixelRatio);
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            
+            // 카메라를 회전시킬 수 있도록 해주는 변수 선언
+            var controls = new OrbitControls( camera, renderer.domElement );
+            // 카메라 초기 위치 세팅
+            controls.target.set(0,2,0);
+            controls.update();
+            clock = new THREE.Clock();
+
+            stats = new Stats();
+            document.body.appendChild(stats.dom);
+        }
+
+        function onWindowResize(){
+            // 마우스로 사이즈 조절
+            // aspect를 그때그때 조절
+            camera.aspect = window.innerWidth / window.innerHeight;
+            // 카메라 투영 매트릭스를 업데이트. 매개 변수 변경 후에 호출해야함
+            camera.updateProjectionMatrix();
+
+            // 캔버스 size를 계속 업뎃
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        }
+
+        // 계속 애니메이션을 돌리기 위함 위한 함수
+        function animate(){
+            requestAnimationFrame(animate);
+            render();
+
+            stats.update();
+        }
+
+        function renderScene(){
+            renderer.render(scene, camera);
+        }
+
+        // 피사체 돌려보리기
+        function render(){
+            var delta = clock.getDelta();
+
+            renderScene();
+            location.rotation.y += 2 * delta;
+        }
+    </script>
+</html>
